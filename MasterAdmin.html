@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Master Administration</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #02030a;
+            --surface: rgba(20, 20, 25, 0.7);
+            --primary: #F43F5E;
+            --primary-glow: rgba(244, 63, 94, 0.4);
+            --text: #ffffff;
+            --text-dim: #9ca3af;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Particles Background */
+        #particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* Loader */
+        #global-loader {
+            position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        /* Login Screen */
+        #login-screen {
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        
+        .login-box { width: 100%; max-width: 400px; text-align: center; }
+        
+        .input-group { position: relative; margin-bottom: 16px; }
+        .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        .input-field {
+            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            padding: 16px 16px 16px 45px; border-radius: 12px; color: #fff; font-size: 1rem;
+            outline: none; transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+
+        .btn {
+            width: 100%; background: var(--primary); color: #fff; border: none; padding: 16px;
+            border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer;
+            transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn:hover { box-shadow: 0 0 20px var(--primary-glow); transform: translateY(-2px); }
+
+        /* Dashboard */
+        #dashboard { display: none; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .header h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+        
+        .panel-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .panel-item {
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .panel-info { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+        .panel-url { font-size: 0.9rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .panel-token { font-size: 0.75rem; color: var(--text-dim); }
+        
+        .btn-delete { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn-delete:hover { background: var(--primary); color: #fff; }
+
+        .add-form { display: grid; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
+
+        /* Toast */
+        #toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--surface); border: 1px solid rgba(255,255,255,0.1); padding: 12px 24px;
+            border-radius: 50px; display: flex; align-items: center; gap: 10px; font-weight: 600;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+        }
+        #toast.show { bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+
+    <div id="global-loader">
+        <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px;"></i>
+        <div style="font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; color: var(--text-dim);">INITIALIZING SYSTEM</div>
+    </div>
+
+    <!-- Login -->
+    <div id="login-screen">
+        <div class="glass-card login-box">
+            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--primary-glow));"></i>
+            <h1 style="font-size: 1.5rem; margin-bottom: 5px;">MASTER ADMIN</h1>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px;">Centralized Access Control</p>
+            
+            <div class="input-group">
+                <i class="fas fa-database"></i>
+                <input type="url" id="master-url" class="input-field" placeholder="Master Firebase URL" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-key"></i>
+                <input type="password" id="master-token" class="input-field" placeholder="Master Security Token" required>
+            </div>
+            <button class="btn" onclick="login()" id="login-btn">
+                AUTHENTICATE <i class="fas fa-sign-in-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard">
+        <div class="header">
+            <h1>ROOT CONTROL</h1>
+            <button class="btn-delete" style="border-color: #6b7280; color: #6b7280;" onclick="logout()">
+                <i class="fas fa-power-off"></i>
+            </button>
+        </div>
+
+        <div class="glass-card">
+            <h2 style="font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fas fa-server"></i> Authorized Panels</span>
+                <span id="total-users" style="font-size: 0.8rem; background: var(--primary); padding: 2px 10px; border-radius: 12px; font-weight: 700;">0 Users</span>
+            </h2>
+            
+            <div class="panel-list" id="panel-list">
+                <!-- Panels rendered here -->
+            </div>
+
+            <div class="add-form">
+                <h3 style="font-size: 0.9rem; color: var(--text-dim);">Authorize New Panel</h3>
+                <input type="text" id="new-client" class="input-field" style="padding-left: 16px;" placeholder="Client Name">
+                <input type="url" id="new-url" class="input-field" style="padding-left: 16px;" placeholder="Client Firebase URL">
+                <input type="text" id="new-token" class="input-field" style="padding-left: 16px;" placeholder="Client Firebase Token">
+                <button class="btn" onclick="addPanel()" id="add-btn">AUTHORIZE PANEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <i id="toast-icon" class="fas fa-info-circle"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <script>
+        let MASTER_URL = "";
+        let MASTER_TOKEN = "";
+
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('global-loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
+            }, 800);
+
+            const savedUrl = localStorage.getItem('master_db_url');
+            const savedToken = localStorage.getItem('master_db_token');
+            if (savedUrl && savedToken) {
+                document.getElementById('master-url').value = savedUrl;
+                document.getElementById('master-token').value = savedToken;
+            }
+        };
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').className = isError ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+            toast.style.borderColor = isError ? 'var(--primary)' : '#10b981';
+            document.getElementById('toast-icon').style.color = isError ? 'var(--primary)' : '#10b981';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        async function login() {
+            let url = document.getElementById('master-url').value.trim();
+            let token = document.getElementById('master-token').value.trim();
+            if(!url || !token) { showToast("Enter URL and Token", true); return; }
+
+            while(url.endsWith('/')) url = url.slice(0, -1);
+            
+            const btn = document.getElementById('login-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+            try {
+                const res = await fetch(`${url}/authorized_panels.json?auth=${token}`);
+                if (!res.ok) throw new Error("Invalid Authentication");
+                
+                MASTER_URL = url;
+                MASTER_TOKEN = token;
+                localStorage.setItem('master_db_url', url);
+                localStorage.setItem('master_db_token', token);
+
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                showToast("Authenticated as Root");
+                
+                fetchPanels();
+            } catch(e) {
+                showToast("Access Denied", true);
+            } finally {
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('master_db_url');
+            localStorage.removeItem('master_db_token');
+            location.reload();
+        }
+
+        async function fetchPanels() {
+            try {
+                const res = await fetch(`${MASTER_URL}/authorized_panels.json?auth=${MASTER_TOKEN}`);
+                const data = await res.json() || {};
+                renderPanels(data);
+            } catch(e) {
+                showToast("Failed to fetch panels", true);
+            }
+        }
+
+        function renderPanels(data) {
+            const list = document.getElementById('panel-list');
+            list.innerHTML = '';
+            
+            const keys = Object.keys(data);
+            const totalUsersEl = document.getElementById('total-users');
+            if (totalUsersEl) totalUsersEl.innerText = `${keys.length} User${keys.length === 1 ? '' : 's'}`;
+
+            if (keys.length === 0) {
+                list.innerHTML = `<div style="text-align: center; color: var(--text-dim); padding: 20px;">No authorized panels found.</div>`;
+                return;
+            }
+
+            keys.forEach(b64Url => {
+                const panel = data[b64Url];
+                const realUrl = atob(b64Url);
+                const clientName = panel.clientName || "Unknown Client";
+                
+                const item = document.createElement('div');
+                item.className = 'panel-item';
+                item.innerHTML = `
+                    <div class="panel-info">
+                        <span style="font-size: 1rem; color: var(--primary); font-weight: 700;">${clientName}</span>
+                        <span class="panel-url">${realUrl}</span>
+                        <span class="panel-token">Token: ${panel.token ? panel.token.substring(0, 10) + '...' : 'No Token'}</span>
+                    </div>
+                    <button class="btn-delete" onclick="removePanel('${b64Url}')"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function addPanel() {
+            let clientName = document.getElementById('new-client').value.trim();
+            let clientUrl = document.getElementById('new-url').value.trim();
+            let clientToken = document.getElementById('new-token').value.trim();
+            
+            if (!clientName || !clientUrl) { showToast("Enter Client Name and URL", true); return; }
+            while(clientUrl.endsWith('/')) clientUrl = clientUrl.slice(0, -1);
+
+            const btn = document.getElementById('add-btn');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+            const b64Url = btoa(clientUrl);
+
+            try {
+                await fetch(`${MASTER_URL}/authorized_panels/${b64Url}.json?auth=${MASTER_TOKEN}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clientName: clientName,
+                        token: clientToken,
+                        addedAt: Date.now()
+                    })
+                });
+                showToast("Panel Authorized");
+                document.getElementById('new-client').value = '';
+                document.getElementById('new-url').value = '';
+                document.getElementById('new-token').value = '';
+                fetchPanels();
+            } catch(e) {
+                showToast("Failed to authorize", true);
+            } finally {
+                btn.innerHTML = `AUTHORIZE PANEL`;
+            }
+        }
+
+        async function removePanel(b64Url) {
+            if(!confirm("Are you sure you want to revoke access for this panel?")) return;
+            try {
+                await fetch(`${MASTER_URL}/authorized_panels/${b64Url}.json?auth=${MASTER_TOKEN}`, {
+                    method: 'DELETE'
+                });
+                showToast("Panel Access Revoked");
+                fetchPanels();
+            } catch(e) {
+                showToast("Failed to remove panel", true);
+            }
+        }
+    </script>
+</body>
+</html>
